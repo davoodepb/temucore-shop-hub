@@ -1,16 +1,25 @@
 {
-  "name": "MegaShop - Amazing Deals",
+  "name": "MegaShop - Ofertas Incríveis",
   "short_name": "MegaShop",
-  "description": "Shop millions of products at unbeatable prices",
+  "description": "Compra milhões de produtos a preços imbatíveis. Envio grátis e Flash Deals!",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#fafafa",
   "theme_color": "#f97316",
+  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "/favicon.ico",
       "sizes": "64x64",
       "type": "image/x-icon"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
-  ]
+  ],
+  "categories": ["shopping", "lifestyle"],
+  "lang": "pt-PT"
 }
