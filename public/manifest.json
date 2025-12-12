@@ -1,0 +1,16 @@
+{
+  "name": "MegaShop - Amazing Deals",
+  "short_name": "MegaShop",
+  "description": "Shop millions of products at unbeatable prices",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fafafa",
+  "theme_color": "#f97316",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    }
+  ]
+}
