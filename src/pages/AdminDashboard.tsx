@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { 
@@ -13,9 +13,10 @@ import {
   Check,
   X,
   DollarSign,
-  Users,
   TrendingUp,
-  Star
+  Star,
+  Megaphone,
+  MessageCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,7 +24,22 @@ import { useStore, Product } from '@/contexts/StoreContext';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
-type Tab = 'overview' | 'products' | 'orders' | 'reviews';
+type Tab = 'overview' | 'products' | 'orders' | 'reviews' | 'announcements' | 'chat';
+
+interface Announcement {
+  id: string;
+  title: string;
+  body: string;
+  isPublished: boolean;
+  createdAt: string;
+}
+
+interface ChatMessage {
+  id: string;
+  text: string;
+  sender: 'customer' | 'admin';
+  timestamp: Date;
+}
 
 const AdminDashboard: React.FC = () => {
   const { 
@@ -55,6 +71,39 @@ const AdminDashboard: React.FC = () => {
     isFeatured: false,
     isFlashDeal: false,
   });
+
+  // Announcements
+  const [announcements, setAnnouncements] = useState<Announcement[]>(() => {
+    const saved = localStorage.getItem('announcements');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [announcementForm, setAnnouncementForm] = useState({ title: '', body: '' });
+
+  // Chat
+  const [allChats, setAllChats] = useState<Record<string, { name: string; messages: ChatMessage[] }>>({});
+  const [selectedChat, setSelectedChat] = useState<string | null>(null);
+  const [adminReply, setAdminReply] = useState('');
+
+  useEffect(() => {
+    // Load all chats from localStorage
+    const chats: Record<string, { name: string; messages: ChatMessage[] }> = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key?.startsWith('chat_')) {
+        const email = key.replace('chat_', '');
+        const messages = JSON.parse(localStorage.getItem(key) || '[]');
+        // Get user name
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        const user = users.find((u: any) => u.email === email);
+        chats[email] = { name: user?.name || email, messages };
+      }
+    }
+    setAllChats(chats);
+  }, [activeTab]);
+
+  useEffect(() => {
+    localStorage.setItem('announcements', JSON.stringify(announcements));
+  }, [announcements]);
 
   if (!isAdminLoggedIn) {
     return <Navigate to="/admin-login" replace />;
@@ -88,10 +137,10 @@ const AdminDashboard: React.FC = () => {
 
     if (editingProduct) {
       updateProduct(editingProduct.id, productData);
-      toast({ title: 'Product updated!' });
+      toast({ title: 'Produto atualizado!' });
     } else {
       addProduct(productData);
-      toast({ title: 'Product added!' });
+      toast({ title: 'Produto adicionado!' });
     }
 
     setEditingProduct(null);
@@ -118,11 +167,45 @@ const AdminDashboard: React.FC = () => {
     setIsAddingProduct(true);
   };
 
+  const handleAddAnnouncement = () => {
+    if (!announcementForm.title || !announcementForm.body) return;
+    const newAnnouncement: Announcement = {
+      id: Date.now().toString(),
+      title: announcementForm.title,
+      body: announcementForm.body,
+      isPublished: true,
+      createdAt: new Date().toISOString(),
+    };
+    setAnnouncements([newAnnouncement, ...announcements]);
+    setAnnouncementForm({ title: '', body: '' });
+    toast({ title: 'Anúncio publicado!' });
+  };
+
+  const handleSendAdminReply = () => {
+    if (!adminReply.trim() || !selectedChat) return;
+    const newMessage: ChatMessage = {
+      id: Date.now().toString(),
+      text: adminReply.trim(),
+      sender: 'admin',
+      timestamp: new Date(),
+    };
+    const updatedMessages = [...(allChats[selectedChat]?.messages || []), newMessage];
+    localStorage.setItem(`chat_${selectedChat}`, JSON.stringify(updatedMessages));
+    setAllChats(prev => ({
+      ...prev,
+      [selectedChat]: { ...prev[selectedChat], messages: updatedMessages }
+    }));
+    setAdminReply('');
+    toast({ title: 'Resposta enviada!' });
+  };
+
   const tabs = [
-    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-    { id: 'products', label: 'Products', icon: Package },
-    { id: 'orders', label: 'Orders', icon: ShoppingCart },
-    { id: 'reviews', label: 'Reviews', icon: MessageSquare },
+    { id: 'overview', label: 'Visão Geral', icon: LayoutDashboard },
+    { id: 'products', label: 'Produtos', icon: Package },
+    { id: 'orders', label: 'Pedidos', icon: ShoppingCart },
+    { id: 'reviews', label: 'Avaliações', icon: MessageSquare },
+    { id: 'announcements', label: 'Anúncios', icon: Megaphone },
+    { id: 'chat', label: 'Chat', icon: MessageCircle },
   ];
 
   return (
@@ -134,9 +217,9 @@ const AdminDashboard: React.FC = () => {
 
       <div className="min-h-screen bg-background flex">
         {/* Sidebar */}
-        <aside className="w-64 bg-card border-r border-border p-4 flex flex-col">
+        <aside className="w-64 bg-card border-r border-border p-4 flex flex-col shrink-0">
           <div className="flex items-center gap-2 mb-8">
-            <div className="w-10 h-10 bg-gradient-deal rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-r from-primary to-red-500 rounded-xl flex items-center justify-center">
               <span className="text-lg font-bold text-primary-foreground">M</span>
             </div>
             <div>
@@ -165,7 +248,7 @@ const AdminDashboard: React.FC = () => {
 
           <Button variant="ghost" className="mt-auto" onClick={handleLogout}>
             <LogOut className="w-4 h-4 mr-2" />
-            Logout
+            Sair
           </Button>
         </aside>
 
@@ -174,16 +257,16 @@ const AdminDashboard: React.FC = () => {
           {/* Overview Tab */}
           {activeTab === 'overview' && (
             <div className="space-y-8">
-              <h1 className="text-3xl font-display font-bold text-foreground">Dashboard Overview</h1>
+              <h1 className="text-3xl font-display font-bold text-foreground">Visão Geral</h1>
               
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
-                  { label: 'Total Revenue', value: `$${totalRevenue.toFixed(2)}`, icon: DollarSign, color: 'text-success' },
-                  { label: 'Total Orders', value: totalOrders, icon: ShoppingCart, color: 'text-primary' },
-                  { label: 'Pending Reviews', value: pendingReviews, icon: MessageSquare, color: 'text-warning' },
-                  { label: 'Low Stock Items', value: lowStockProducts, icon: TrendingUp, color: 'text-destructive' },
+                  { label: 'Receita Total', value: `€${totalRevenue.toFixed(2)}`, icon: DollarSign, color: 'text-success' },
+                  { label: 'Total Pedidos', value: totalOrders, icon: ShoppingCart, color: 'text-primary' },
+                  { label: 'Avaliações Pendentes', value: pendingReviews, icon: MessageSquare, color: 'text-warning' },
+                  { label: 'Stock Baixo', value: lowStockProducts, icon: TrendingUp, color: 'text-destructive' },
                 ].map(stat => (
-                  <div key={stat.label} className="bg-card rounded-xl p-6 shadow-sm">
+                  <div key={stat.label} className="bg-card rounded-xl p-6 shadow-sm border border-border">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-muted-foreground text-sm">{stat.label}</span>
                       <stat.icon className={cn("w-5 h-5", stat.color)} />
@@ -193,17 +276,17 @@ const AdminDashboard: React.FC = () => {
                 ))}
               </div>
 
-              <div className="bg-card rounded-xl p-6 shadow-sm">
-                <h2 className="font-display font-bold text-foreground mb-4">Recent Orders</h2>
+              <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
+                <h2 className="font-display font-bold text-foreground mb-4">Pedidos Recentes</h2>
                 <div className="space-y-3">
                   {orders.slice(0, 5).map(order => (
                     <div key={order.id} className="flex items-center justify-between py-3 border-b border-border last:border-0">
                       <div>
                         <p className="font-medium text-foreground">{order.customerName}</p>
-                        <p className="text-sm text-muted-foreground">{new Date(order.date).toLocaleDateString()}</p>
+                        <p className="text-sm text-muted-foreground">{new Date(order.date).toLocaleDateString('pt-PT')}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-foreground">${order.total.toFixed(2)}</p>
+                        <p className="font-bold text-foreground">€{order.total.toFixed(2)}</p>
                         <span className={cn(
                           "text-xs font-medium px-2 py-1 rounded-full",
                           order.status === 'paid' && "bg-success/10 text-success",
@@ -218,7 +301,7 @@ const AdminDashboard: React.FC = () => {
                     </div>
                   ))}
                   {orders.length === 0 && (
-                    <p className="text-muted-foreground text-center py-4">No orders yet</p>
+                    <p className="text-muted-foreground text-center py-4">Sem pedidos ainda</p>
                   )}
                 </div>
               </div>
@@ -229,30 +312,29 @@ const AdminDashboard: React.FC = () => {
           {activeTab === 'products' && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-display font-bold text-foreground">Products</h1>
+                <h1 className="text-3xl font-display font-bold text-foreground">Produtos</h1>
                 <Button onClick={() => { setIsAddingProduct(true); setEditingProduct(null); }}>
                   <Plus className="w-4 h-4 mr-2" />
-                  Add Product
+                  Adicionar Produto
                 </Button>
               </div>
 
-              {/* Product Form Modal */}
               {isAddingProduct && (
                 <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
                   <h2 className="font-display font-bold text-foreground mb-4">
-                    {editingProduct ? 'Edit Product' : 'Add New Product'}
+                    {editingProduct ? 'Editar Produto' : 'Novo Produto'}
                   </h2>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-1">Name</label>
+                      <label className="block text-sm font-medium mb-1">Nome</label>
                       <Input
                         value={productForm.name}
                         onChange={(e) => setProductForm(p => ({ ...p, name: e.target.value }))}
-                        placeholder="Product name"
+                        placeholder="Nome do produto"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Category</label>
+                      <label className="block text-sm font-medium mb-1">Categoria</label>
                       <select
                         value={productForm.category}
                         onChange={(e) => setProductForm(p => ({ ...p, category: e.target.value }))}
@@ -264,7 +346,7 @@ const AdminDashboard: React.FC = () => {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Price</label>
+                      <label className="block text-sm font-medium mb-1">Preço (€)</label>
                       <Input
                         type="number"
                         value={productForm.price}
@@ -273,7 +355,7 @@ const AdminDashboard: React.FC = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Original Price (optional)</label>
+                      <label className="block text-sm font-medium mb-1">Preço Original (opcional)</label>
                       <Input
                         type="number"
                         value={productForm.originalPrice}
@@ -291,7 +373,7 @@ const AdminDashboard: React.FC = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Image URL</label>
+                      <label className="block text-sm font-medium mb-1">URL da Imagem</label>
                       <Input
                         value={productForm.image}
                         onChange={(e) => setProductForm(p => ({ ...p, image: e.target.value }))}
@@ -299,12 +381,12 @@ const AdminDashboard: React.FC = () => {
                       />
                     </div>
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium mb-1">Description</label>
+                      <label className="block text-sm font-medium mb-1">Descrição</label>
                       <textarea
                         value={productForm.description}
                         onChange={(e) => setProductForm(p => ({ ...p, description: e.target.value }))}
                         className="w-full px-3 py-2 rounded-lg border border-border bg-background min-h-[80px]"
-                        placeholder="Product description..."
+                        placeholder="Descrição do produto..."
                       />
                     </div>
                     <div className="flex gap-4">
@@ -314,7 +396,7 @@ const AdminDashboard: React.FC = () => {
                           checked={productForm.isFeatured}
                           onChange={(e) => setProductForm(p => ({ ...p, isFeatured: e.target.checked }))}
                         />
-                        Featured
+                        Destaque
                       </label>
                       <label className="flex items-center gap-2">
                         <input
@@ -327,22 +409,21 @@ const AdminDashboard: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex gap-3 mt-6">
-                    <Button onClick={handleSaveProduct}>Save Product</Button>
-                    <Button variant="outline" onClick={() => setIsAddingProduct(false)}>Cancel</Button>
+                    <Button onClick={handleSaveProduct}>Guardar</Button>
+                    <Button variant="outline" onClick={() => setIsAddingProduct(false)}>Cancelar</Button>
                   </div>
                 </div>
               )}
 
-              {/* Products Table */}
-              <div className="bg-card rounded-xl shadow-sm overflow-hidden">
+              <div className="bg-card rounded-xl shadow-sm overflow-hidden border border-border">
                 <table className="w-full">
                   <thead className="bg-muted">
                     <tr>
-                      <th className="text-left p-4 font-medium text-muted-foreground">Product</th>
-                      <th className="text-left p-4 font-medium text-muted-foreground">Price</th>
+                      <th className="text-left p-4 font-medium text-muted-foreground">Produto</th>
+                      <th className="text-left p-4 font-medium text-muted-foreground">Preço</th>
                       <th className="text-left p-4 font-medium text-muted-foreground">Stock</th>
-                      <th className="text-left p-4 font-medium text-muted-foreground">Category</th>
-                      <th className="text-right p-4 font-medium text-muted-foreground">Actions</th>
+                      <th className="text-left p-4 font-medium text-muted-foreground">Categoria</th>
+                      <th className="text-right p-4 font-medium text-muted-foreground">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -354,7 +435,7 @@ const AdminDashboard: React.FC = () => {
                             <span className="font-medium text-foreground">{product.name}</span>
                           </div>
                         </td>
-                        <td className="p-4 font-medium text-foreground">${product.price.toFixed(2)}</td>
+                        <td className="p-4 font-medium text-foreground">€{product.price.toFixed(2)}</td>
                         <td className="p-4">
                           <span className={cn(
                             "font-medium",
@@ -370,7 +451,7 @@ const AdminDashboard: React.FC = () => {
                           </Button>
                           <Button variant="ghost" size="icon" onClick={() => {
                             deleteProduct(product.id);
-                            toast({ title: 'Product deleted' });
+                            toast({ title: 'Produto eliminado' });
                           }}>
                             <Trash2 className="w-4 h-4 text-destructive" />
                           </Button>
@@ -386,17 +467,17 @@ const AdminDashboard: React.FC = () => {
           {/* Orders Tab */}
           {activeTab === 'orders' && (
             <div className="space-y-6">
-              <h1 className="text-3xl font-display font-bold text-foreground">Orders</h1>
+              <h1 className="text-3xl font-display font-bold text-foreground">Pedidos</h1>
               
-              <div className="bg-card rounded-xl shadow-sm overflow-hidden">
+              <div className="bg-card rounded-xl shadow-sm overflow-hidden border border-border">
                 <table className="w-full">
                   <thead className="bg-muted">
                     <tr>
-                      <th className="text-left p-4 font-medium text-muted-foreground">Order ID</th>
-                      <th className="text-left p-4 font-medium text-muted-foreground">Customer</th>
+                      <th className="text-left p-4 font-medium text-muted-foreground">ID</th>
+                      <th className="text-left p-4 font-medium text-muted-foreground">Cliente</th>
                       <th className="text-left p-4 font-medium text-muted-foreground">Total</th>
-                      <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
-                      <th className="text-right p-4 font-medium text-muted-foreground">Actions</th>
+                      <th className="text-left p-4 font-medium text-muted-foreground">Estado</th>
+                      <th className="text-right p-4 font-medium text-muted-foreground">Data</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -407,29 +488,29 @@ const AdminDashboard: React.FC = () => {
                           <p className="font-medium text-foreground">{order.customerName}</p>
                           <p className="text-sm text-muted-foreground">{order.customerEmail}</p>
                         </td>
-                        <td className="p-4 font-bold text-foreground">${order.total.toFixed(2)}</td>
+                        <td className="p-4 font-bold text-foreground">€{order.total.toFixed(2)}</td>
                         <td className="p-4">
                           <select
                             value={order.status}
                             onChange={(e) => updateOrderStatus(order.id, e.target.value as any)}
                             className="text-sm px-3 py-1 rounded-lg border border-border bg-background"
                           >
-                            <option value="pending">Pending</option>
-                            <option value="paid">Paid</option>
-                            <option value="shipped">Shipped</option>
-                            <option value="delivered">Delivered</option>
-                            <option value="cancelled">Cancelled</option>
+                            <option value="pending">Pendente</option>
+                            <option value="paid">Pago</option>
+                            <option value="shipped">Enviado</option>
+                            <option value="delivered">Entregue</option>
+                            <option value="cancelled">Cancelado</option>
                           </select>
                         </td>
                         <td className="p-4 text-right text-sm text-muted-foreground">
-                          {new Date(order.date).toLocaleDateString()}
+                          {new Date(order.date).toLocaleDateString('pt-PT')}
                         </td>
                       </tr>
                     ))}
                     {orders.length === 0 && (
                       <tr>
                         <td colSpan={5} className="p-8 text-center text-muted-foreground">
-                          No orders yet
+                          Sem pedidos ainda
                         </td>
                       </tr>
                     )}
@@ -442,15 +523,15 @@ const AdminDashboard: React.FC = () => {
           {/* Reviews Tab */}
           {activeTab === 'reviews' && (
             <div className="space-y-6">
-              <h1 className="text-3xl font-display font-bold text-foreground">Reviews</h1>
+              <h1 className="text-3xl font-display font-bold text-foreground">Avaliações</h1>
               
               <div className="space-y-4">
                 {reviews.map(review => {
                   const product = products.find(p => p.id === review.productId);
                   return (
                     <div key={review.id} className={cn(
-                      "bg-card rounded-xl p-4 shadow-sm",
-                      !review.isApproved && "border-2 border-warning"
+                      "bg-card rounded-xl p-4 shadow-sm border",
+                      !review.isApproved ? "border-warning" : "border-border"
                     )}>
                       <div className="flex items-start justify-between">
                         <div>
@@ -458,12 +539,12 @@ const AdminDashboard: React.FC = () => {
                             <span className="font-medium text-foreground">{review.userName}</span>
                             {!review.isApproved && (
                               <span className="text-xs bg-warning/10 text-warning px-2 py-0.5 rounded-full">
-                                Pending
+                                Pendente
                               </span>
                             )}
                           </div>
                           <p className="text-sm text-muted-foreground mb-2">
-                            on <strong>{product?.name || 'Unknown Product'}</strong>
+                            em <strong>{product?.name || 'Produto desconhecido'}</strong>
                           </p>
                           <div className="flex items-center gap-1 mb-2">
                             {[...Array(5)].map((_, i) => (
@@ -471,7 +552,7 @@ const AdminDashboard: React.FC = () => {
                                 key={i}
                                 className={cn(
                                   "w-4 h-4",
-                                  i < review.rating ? "fill-accent text-accent" : "text-muted"
+                                  i < review.rating ? "fill-amber-400 text-amber-400" : "text-muted"
                                 )}
                               />
                             ))}
@@ -485,7 +566,7 @@ const AdminDashboard: React.FC = () => {
                               size="icon"
                               onClick={() => {
                                 approveReview(review.id);
-                                toast({ title: 'Review approved' });
+                                toast({ title: 'Avaliação aprovada' });
                               }}
                             >
                               <Check className="w-4 h-4" />
@@ -496,7 +577,7 @@ const AdminDashboard: React.FC = () => {
                             size="icon"
                             onClick={() => {
                               deleteReview(review.id);
-                              toast({ title: 'Review deleted' });
+                              toast({ title: 'Avaliação eliminada' });
                             }}
                           >
                             <X className="w-4 h-4 text-destructive" />
@@ -507,10 +588,156 @@ const AdminDashboard: React.FC = () => {
                   );
                 })}
                 {reviews.length === 0 && (
-                  <div className="bg-card rounded-xl p-8 text-center text-muted-foreground">
-                    No reviews yet
+                  <div className="bg-card rounded-xl p-8 text-center text-muted-foreground border border-border">
+                    Sem avaliações ainda
                   </div>
                 )}
+              </div>
+            </div>
+          )}
+
+          {/* Announcements Tab */}
+          {activeTab === 'announcements' && (
+            <div className="space-y-6">
+              <h1 className="text-3xl font-display font-bold text-foreground">Anúncios</h1>
+              
+              <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
+                <h2 className="font-semibold text-foreground mb-4">Novo Anúncio</h2>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Título</label>
+                    <Input
+                      value={announcementForm.title}
+                      onChange={(e) => setAnnouncementForm(f => ({ ...f, title: e.target.value }))}
+                      placeholder="Título do anúncio"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Mensagem</label>
+                    <textarea
+                      value={announcementForm.body}
+                      onChange={(e) => setAnnouncementForm(f => ({ ...f, body: e.target.value }))}
+                      className="w-full px-3 py-2 rounded-lg border border-border bg-background min-h-[80px]"
+                      placeholder="Escreve a mensagem do anúncio..."
+                    />
+                  </div>
+                  <Button onClick={handleAddAnnouncement} disabled={!announcementForm.title || !announcementForm.body}>
+                    <Megaphone className="w-4 h-4 mr-2" />
+                    Publicar Anúncio
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {announcements.map(announcement => (
+                  <div key={announcement.id} className="bg-card rounded-xl p-4 shadow-sm border border-border">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="font-medium text-foreground">{announcement.title}</h3>
+                        <p className="text-sm text-muted-foreground mt-1">{announcement.body}</p>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          {new Date(announcement.createdAt).toLocaleDateString('pt-PT')}
+                        </p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          setAnnouncements(announcements.filter(a => a.id !== announcement.id));
+                          toast({ title: 'Anúncio eliminado' });
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+                {announcements.length === 0 && (
+                  <div className="bg-card rounded-xl p-8 text-center text-muted-foreground border border-border">
+                    Sem anúncios ainda
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Chat Tab */}
+          {activeTab === 'chat' && (
+            <div className="space-y-6">
+              <h1 className="text-3xl font-display font-bold text-foreground">Centro de Mensagens</h1>
+              
+              <div className="grid md:grid-cols-3 gap-6">
+                {/* Chat List */}
+                <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
+                  <div className="p-4 border-b border-border">
+                    <h2 className="font-semibold text-foreground">Conversas</h2>
+                  </div>
+                  <div className="divide-y divide-border">
+                    {Object.entries(allChats).map(([email, chat]) => (
+                      <button
+                        key={email}
+                        onClick={() => setSelectedChat(email)}
+                        className={cn(
+                          "w-full p-4 text-left hover:bg-muted transition-colors",
+                          selectedChat === email && "bg-muted"
+                        )}
+                      >
+                        <p className="font-medium text-foreground">{chat.name}</p>
+                        <p className="text-sm text-muted-foreground truncate">{email}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {chat.messages.length} mensagens
+                        </p>
+                      </button>
+                    ))}
+                    {Object.keys(allChats).length === 0 && (
+                      <p className="p-4 text-sm text-muted-foreground text-center">
+                        Sem conversas
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Chat Messages */}
+                <div className="md:col-span-2 bg-card rounded-xl shadow-sm border border-border flex flex-col h-[500px]">
+                  {selectedChat ? (
+                    <>
+                      <div className="p-4 border-b border-border">
+                        <h2 className="font-semibold text-foreground">{allChats[selectedChat]?.name}</h2>
+                        <p className="text-sm text-muted-foreground">{selectedChat}</p>
+                      </div>
+                      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                        {allChats[selectedChat]?.messages.map((msg) => (
+                          <div
+                            key={msg.id}
+                            className={cn(
+                              "max-w-[80%] p-3 rounded-2xl text-sm",
+                              msg.sender === 'admin'
+                                ? "bg-primary text-primary-foreground ml-auto rounded-br-sm"
+                                : "bg-muted rounded-bl-sm"
+                            )}
+                          >
+                            {msg.text}
+                          </div>
+                        ))}
+                      </div>
+                      <div className="p-4 border-t border-border">
+                        <div className="flex gap-2">
+                          <Input
+                            value={adminReply}
+                            onChange={(e) => setAdminReply(e.target.value)}
+                            onKeyPress={(e) => e.key === 'Enter' && handleSendAdminReply()}
+                            placeholder="Escreve uma resposta..."
+                          />
+                          <Button onClick={handleSendAdminReply}>Enviar</Button>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex-1 flex items-center justify-center text-muted-foreground">
+                      Seleciona uma conversa
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}
