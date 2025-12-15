@@ -217,7 +217,7 @@ const AdminDashboard: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>Admin Dashboard | MegaShop</title>
+        <title>Admin Dashboard | FIO & ALMA STUDIO</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
@@ -225,12 +225,12 @@ const AdminDashboard: React.FC = () => {
         {/* Sidebar */}
         <aside className="w-64 bg-card border-r border-border p-4 flex flex-col shrink-0">
           <div className="flex items-center gap-2 mb-8">
-            <div className="w-10 h-10 bg-gradient-to-r from-primary to-red-500 rounded-xl flex items-center justify-center">
-              <span className="text-lg font-bold text-primary-foreground">M</span>
+            <div className="w-10 h-10 bg-gradient-to-r from-amber-600 to-amber-800 rounded-xl flex items-center justify-center">
+              <span className="text-lg font-bold text-primary-foreground">F</span>
             </div>
             <div>
-              <span className="font-display font-bold text-foreground">Admin</span>
-              <p className="text-xs text-muted-foreground">Dashboard</p>
+              <span className="font-display font-bold text-foreground">FIO & ALMA</span>
+              <p className="text-xs text-muted-foreground">Admin</p>
             </div>
           </div>
 
