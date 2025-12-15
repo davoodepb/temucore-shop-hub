@@ -12,19 +12,23 @@ import {
   Trash2,
   Check,
   X,
-  DollarSign,
-  TrendingUp,
   Star,
   Megaphone,
-  MessageCircle
+  MessageCircle,
+  BarChart3,
+  Settings,
+  Download,
+  DollarSign,
+  TrendingUp
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useStore, Product } from '@/contexts/StoreContext';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { AnalyticsCharts } from '@/components/admin/AnalyticsCharts';
 
-type Tab = 'overview' | 'products' | 'orders' | 'reviews' | 'announcements' | 'chat';
+type Tab = 'overview' | 'analytics' | 'products' | 'orders' | 'reviews' | 'announcements' | 'chat' | 'settings';
 
 interface Announcement {
   id: string;
@@ -201,11 +205,13 @@ const AdminDashboard: React.FC = () => {
 
   const tabs = [
     { id: 'overview', label: 'Visão Geral', icon: LayoutDashboard },
+    { id: 'analytics', label: 'Análises', icon: BarChart3 },
     { id: 'products', label: 'Produtos', icon: Package },
     { id: 'orders', label: 'Pedidos', icon: ShoppingCart },
     { id: 'reviews', label: 'Avaliações', icon: MessageSquare },
     { id: 'announcements', label: 'Anúncios', icon: Megaphone },
     { id: 'chat', label: 'Chat', icon: MessageCircle },
+    { id: 'settings', label: 'Definições', icon: Settings },
   ];
 
   return (
@@ -305,6 +311,21 @@ const AdminDashboard: React.FC = () => {
                   )}
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Analytics Tab */}
+          {activeTab === 'analytics' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h1 className="text-3xl font-display font-bold text-foreground">Análises Detalhadas</h1>
+                <Button variant="outline" onClick={() => toast({ title: 'Exportação em breve!' })}>
+                  <Download className="w-4 h-4 mr-2" />
+                  Exportar CSV
+                </Button>
+              </div>
+              
+              <AnalyticsCharts orders={orders} products={products} reviews={reviews} />
             </div>
           )}
 
@@ -738,6 +759,81 @@ const AdminDashboard: React.FC = () => {
                     </div>
                   )}
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Settings Tab */}
+          {activeTab === 'settings' && (
+            <div className="space-y-6">
+              <h1 className="text-3xl font-display font-bold text-foreground">Definições</h1>
+              
+              <div className="grid gap-6 max-w-2xl">
+                <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
+                  <h2 className="font-semibold text-foreground mb-4">Loja</h2>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Nome da Loja</label>
+                      <Input defaultValue="MegaShop" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Email de Contacto</label>
+                      <Input defaultValue="suporte@megashop.com" type="email" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Moeda</label>
+                      <select className="w-full h-10 px-3 rounded-lg border border-border bg-background">
+                        <option value="EUR">EUR (€)</option>
+                        <option value="USD">USD ($)</option>
+                        <option value="GBP">GBP (£)</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
+                  <h2 className="font-semibold text-foreground mb-4">Segurança</h2>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-foreground">Autenticação 2FA</p>
+                        <p className="text-sm text-muted-foreground">Adiciona uma camada extra de segurança</p>
+                      </div>
+                      <Button variant="outline" size="sm">Ativar</Button>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-foreground">Alterar Password</p>
+                        <p className="text-sm text-muted-foreground">Atualiza a password de admin</p>
+                      </div>
+                      <Button variant="outline" size="sm">Alterar</Button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
+                  <h2 className="font-semibold text-foreground mb-4">Cookies e Privacidade</h2>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-foreground">Banner de Cookies</p>
+                        <p className="text-sm text-muted-foreground">Mostra aviso de cookies aos visitantes</p>
+                      </div>
+                      <input type="checkbox" defaultChecked className="w-5 h-5 rounded" />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-foreground">Analytics</p>
+                        <p className="text-sm text-muted-foreground">Recolhe dados anónimos de uso</p>
+                      </div>
+                      <input type="checkbox" defaultChecked className="w-5 h-5 rounded" />
+                    </div>
+                  </div>
+                </div>
+
+                <Button className="w-fit" onClick={() => toast({ title: 'Definições guardadas!' })}>
+                  Guardar Alterações
+                </Button>
               </div>
             </div>
           )}
