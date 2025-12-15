@@ -1,11 +1,11 @@
 {
-  "name": "MegaShop - Ofertas Incríveis",
-  "short_name": "MegaShop",
-  "description": "Compra milhões de produtos a preços imbatíveis. Envio grátis e Flash Deals!",
+  "name": "FIO & ALMA STUDIO",
+  "short_name": "FIO & ALMA",
+  "description": "Moda artesanal portuguesa com qualidade e estilo.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#fafafa",
-  "theme_color": "#f97316",
+  "theme_color": "#d97706",
   "orientation": "portrait-primary",
   "icons": [
     {

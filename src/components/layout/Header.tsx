@@ -95,11 +95,11 @@ export const Header: React.FC<HeaderProps> = ({ onSearch, onOpenChat }) => {
             onClick={handleLogoClick}
             className="flex items-center gap-2 select-none"
           >
-            <div className="w-10 h-10 bg-gradient-to-r from-primary to-red-500 rounded-xl flex items-center justify-center shadow-lg">
-              <span className="text-xl font-bold text-primary-foreground">M</span>
+            <div className="w-10 h-10 bg-gradient-to-r from-amber-600 to-amber-800 rounded-xl flex items-center justify-center shadow-lg">
+              <span className="text-xl font-bold text-primary-foreground">F</span>
             </div>
             <span className="text-xl font-display font-bold text-foreground hidden sm:block">
-              Mega<span className="text-primary">Shop</span>
+              FIO & ALMA<span className="text-primary"> STUDIO</span>
             </span>
           </Link>
 

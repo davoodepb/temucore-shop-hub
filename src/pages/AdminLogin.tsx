@@ -29,7 +29,7 @@ const AdminLogin: React.FC = () => {
       if (adminLogin(password)) {
         navigate('/admin');
       } else {
-        setError('Invalid password. Access denied.');
+        setError('Palavra-passe inválida. Acesso negado.');
         setPassword('');
       }
       setIsLoading(false);
@@ -39,36 +39,36 @@ const AdminLogin: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>Admin Login | MegaShop</title>
+        <title>Admin Login | FIO & ALMA STUDIO</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
-      <div className="min-h-screen bg-gradient-dark flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-amber-900 via-stone-900 to-stone-950 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8">
+          <Link to="/" className="inline-flex items-center gap-2 text-amber-200/70 hover:text-amber-100 mb-8">
             <ArrowLeft className="w-4 h-4" />
-            Back to Store
+            Voltar à Loja
           </Link>
 
           <div className="bg-card rounded-2xl p-8 shadow-2xl border border-border">
             <div className="flex flex-col items-center mb-8">
-              <div className="w-16 h-16 bg-gradient-deal rounded-2xl flex items-center justify-center mb-4 shadow-glow">
+              <div className="w-16 h-16 bg-gradient-to-r from-amber-600 to-amber-800 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
                 <Lock className="w-8 h-8 text-primary-foreground" />
               </div>
-              <h1 className="text-2xl font-display font-bold text-foreground">Admin Access</h1>
-              <p className="text-muted-foreground text-sm mt-2">Enter your password to continue</p>
+              <h1 className="text-2xl font-display font-bold text-foreground">Acesso Admin</h1>
+              <p className="text-muted-foreground text-sm mt-2">Introduz a palavra-passe para continuar</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Password
+                  Palavra-passe
                 </label>
                 <Input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter admin password"
+                  placeholder="Introduz a palavra-passe"
                   className="h-12"
                   autoFocus
                 />
@@ -83,21 +83,21 @@ const AdminLogin: React.FC = () => {
 
               <Button
                 type="submit"
-                variant="deal"
+                variant="default"
                 size="lg"
-                className="w-full"
+                className="w-full bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900"
                 disabled={isLoading || !password}
               >
                 {isLoading ? (
-                  <span className="animate-pulse">Verifying...</span>
+                  <span className="animate-pulse">A verificar...</span>
                 ) : (
-                  'Access Dashboard'
+                  'Aceder ao Dashboard'
                 )}
               </Button>
             </form>
 
             <p className="text-xs text-muted-foreground text-center mt-6">
-              This area is restricted to authorized personnel only.
+              Esta área está restrita apenas a pessoal autorizado.
             </p>
           </div>
         </div>

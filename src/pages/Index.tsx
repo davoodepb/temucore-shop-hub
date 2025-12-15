@@ -3,10 +3,12 @@ import { Helmet } from 'react-helmet-async';
 import { Header } from '@/components/layout/Header';
 import { ProductCard } from '@/components/products/ProductCard';
 import { FlashDeals } from '@/components/products/FlashDeals';
+import { ProductsCarousel } from '@/components/products/ProductsCarousel';
 import { ChatWidget, ChatWidgetRef } from '@/components/chat/ChatWidget';
 import { CookieConsent } from '@/components/common/CookieConsent';
 import { useStore } from '@/contexts/StoreContext';
-import { Gift, Truck, Shield, HeadphonesIcon, Megaphone, X } from 'lucide-react';
+import { Gift, Truck, Shield, HeadphonesIcon, Megaphone, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface Announcement {
   id: string;
@@ -79,8 +81,8 @@ const Index: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>MegaShop - Ofertas Incríveis em Tudo | Até 90% DESCONTO</title>
-        <meta name="description" content="Compra milhões de produtos a preços imbatíveis. Envio grátis em compras acima de €35. Flash deals, eletrónica, moda e muito mais!" />
+        <title>FIO & ALMA STUDIO - Moda Artesanal com Alma</title>
+        <meta name="description" content="Descubra peças únicas feitas à mão. Moda artesanal portuguesa com qualidade e estilo." />
       </Helmet>
 
       <div className="min-h-screen bg-background">
@@ -124,20 +126,9 @@ const Index: React.FC = () => {
           {/* Flash Deals Section */}
           {!searchQuery && <FlashDeals />}
 
-          {/* Featured Products */}
+          {/* Featured Products with Carousel */}
           {!searchQuery && featuredProducts.length > 0 && (
-            <section className="py-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-display font-bold text-foreground">
-                  Produtos em Destaque
-                </h2>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
-                {featuredProducts.map(product => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
-            </section>
+            <ProductsCarousel products={featuredProducts} title="Produtos em Destaque" />
           )}
 
           {/* All Products / Search Results */}
@@ -171,15 +162,15 @@ const Index: React.FC = () => {
           <div className="container py-8">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-primary to-red-500 rounded-lg flex items-center justify-center">
-                  <span className="text-sm font-bold text-primary-foreground">M</span>
+                <div className="w-8 h-8 bg-gradient-to-r from-amber-600 to-amber-800 rounded-lg flex items-center justify-center">
+                  <span className="text-sm font-bold text-primary-foreground">F</span>
                 </div>
                 <span className="font-display font-bold text-foreground">
-                  Mega<span className="text-primary">Shop</span>
+                  FIO & ALMA<span className="text-primary"> STUDIO</span>
                 </span>
               </div>
               <p className="text-sm text-muted-foreground">
-                © 2024 MegaShop. Todos os direitos reservados.
+                © 2024 FIO & ALMA STUDIO. Todos os direitos reservados.
               </p>
             </div>
           </div>
