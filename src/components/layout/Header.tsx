@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Search, Menu, X, Zap, User, Package, LogOut } from 'lucide-react';
+import { ShoppingCart, Search, Menu, X, Zap, User, Package, LogOut, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useStore } from '@/contexts/StoreContext';
@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
+  onOpenChat?: () => void;
 }
 
 interface CurrentUser {
@@ -16,7 +17,7 @@ interface CurrentUser {
   email: string;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onSearch }) => {
+export const Header: React.FC<HeaderProps> = ({ onSearch, onOpenChat }) => {
   const { getCartItemCount } = useStore();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
@@ -33,6 +34,19 @@ export const Header: React.FC<HeaderProps> = ({ onSearch }) => {
     if (saved) {
       setCurrentUser(JSON.parse(saved));
     }
+
+    // Listen for storage changes (when user logs in/out)
+    const handleStorageChange = () => {
+      const saved = localStorage.getItem('currentUser');
+      if (saved) {
+        setCurrentUser(JSON.parse(saved));
+      } else {
+        setCurrentUser(null);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   const handleLogoClick = () => {
@@ -104,7 +118,18 @@ export const Header: React.FC<HeaderProps> = ({ onSearch }) => {
           </form>
 
           {/* Actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            {/* Chat Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onOpenChat}
+              className="relative"
+              title="Chat com Suporte"
+            >
+              <MessageCircle className="w-5 h-5" />
+            </Button>
+
             {/* User Menu */}
             <div className="relative">
               <Button
@@ -116,7 +141,7 @@ export const Header: React.FC<HeaderProps> = ({ onSearch }) => {
               </Button>
 
               {isUserMenuOpen && currentUser && (
-                <div className="absolute right-0 top-full mt-2 w-56 bg-card rounded-xl shadow-xl border border-border py-2 animate-fade-in">
+                <div className="absolute right-0 top-full mt-2 w-56 bg-card rounded-xl shadow-xl border border-border py-2 animate-fade-in z-50">
                   <div className="px-4 py-2 border-b border-border">
                     <p className="font-medium text-foreground truncate">{currentUser.name}</p>
                     <p className="text-xs text-muted-foreground truncate">{currentUser.email}</p>

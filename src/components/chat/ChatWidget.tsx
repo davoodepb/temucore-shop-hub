@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useImperativeHandle, forwardRef } from 'react';
 import { X, Send, MessageCircle, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -15,7 +15,12 @@ interface ChatWidgetProps {
   customerEmail?: string;
 }
 
-export const ChatWidget: React.FC<ChatWidgetProps> = ({ customerName, customerEmail }) => {
+export interface ChatWidgetRef {
+  openChat: () => void;
+  closeChat: () => void;
+}
+
+export const ChatWidget = forwardRef<ChatWidgetRef, ChatWidgetProps>(({ customerName, customerEmail }, ref) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>(() => {
     if (!customerEmail) return [];
@@ -24,6 +29,11 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ customerName, customerEm
   });
   const [inputText, setInputText] = useState('');
   const [isLoggedIn] = useState(!!customerEmail);
+
+  useImperativeHandle(ref, () => ({
+    openChat: () => setIsOpen(true),
+    closeChat: () => setIsOpen(false),
+  }));
 
   const handleSend = () => {
     if (!inputText.trim() || !isLoggedIn) return;
@@ -142,4 +152,6 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ customerName, customerEm
       )}
     </>
   );
-};
+});
+
+ChatWidget.displayName = 'ChatWidget';
