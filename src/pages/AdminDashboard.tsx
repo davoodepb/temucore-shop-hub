@@ -394,11 +394,33 @@ const AdminDashboard: React.FC = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">URL da Imagem</label>
+                      <label className="block text-sm font-medium mb-1">Imagem do Produto</label>
                       <Input
-                        value={productForm.image}
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              setProductForm(p => ({ ...p, image: reader.result as string }));
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                        className="cursor-pointer"
+                      />
+                      {productForm.image && (
+                        <div className="mt-2">
+                          <img src={productForm.image} alt="Preview" className="w-20 h-20 object-cover rounded-lg" />
+                        </div>
+                      )}
+                      <p className="text-xs text-muted-foreground mt-1">Ou cola um URL:</p>
+                      <Input
+                        value={productForm.image.startsWith('data:') ? '' : productForm.image}
                         onChange={(e) => setProductForm(p => ({ ...p, image: e.target.value }))}
                         placeholder="https://..."
+                        className="mt-1"
                       />
                     </div>
                     <div className="md:col-span-2">
