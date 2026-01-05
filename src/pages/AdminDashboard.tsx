@@ -19,7 +19,13 @@ import {
   Settings,
   Download,
   DollarSign,
-  TrendingUp
+  TrendingUp,
+  Info,
+  Newspaper,
+  Mail,
+  Phone,
+  Link as LinkIcon,
+  Image
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,7 +34,7 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { AnalyticsCharts } from '@/components/admin/AnalyticsCharts';
 
-type Tab = 'overview' | 'analytics' | 'products' | 'orders' | 'reviews' | 'announcements' | 'chat' | 'settings';
+type Tab = 'overview' | 'analytics' | 'products' | 'orders' | 'reviews' | 'announcements' | 'chat' | 'about' | 'news' | 'settings';
 
 interface Announcement {
   id: string;
@@ -88,6 +94,27 @@ const AdminDashboard: React.FC = () => {
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [adminReply, setAdminReply] = useState('');
 
+  // About Us
+  const [aboutUs, setAboutUs] = useState(() => {
+    const saved = localStorage.getItem('site_about');
+    return saved ? JSON.parse(saved) : {
+      description: '',
+      email: '',
+      phone: '',
+      whatsapp: '',
+      instagram: '',
+      facebook: '',
+      image: ''
+    };
+  });
+
+  // News
+  const [news, setNews] = useState<Array<{ id: string; title: string; content: string; image: string; date: string }>>(() => {
+    const saved = localStorage.getItem('site_news');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [newsForm, setNewsForm] = useState({ title: '', content: '', image: '' });
+
   useEffect(() => {
     // Load all chats from localStorage
     const chats: Record<string, { name: string; messages: ChatMessage[] }> = {};
@@ -108,6 +135,14 @@ const AdminDashboard: React.FC = () => {
   useEffect(() => {
     localStorage.setItem('announcements', JSON.stringify(announcements));
   }, [announcements]);
+
+  useEffect(() => {
+    localStorage.setItem('site_about', JSON.stringify(aboutUs));
+  }, [aboutUs]);
+
+  useEffect(() => {
+    localStorage.setItem('site_news', JSON.stringify(news));
+  }, [news]);
 
   if (!isAdminLoggedIn) {
     return <Navigate to="/admin-login" replace />;
@@ -203,6 +238,25 @@ const AdminDashboard: React.FC = () => {
     toast({ title: 'Resposta enviada!' });
   };
 
+  const handleSaveAbout = () => {
+    localStorage.setItem('site_about', JSON.stringify(aboutUs));
+    toast({ title: 'Sobre Nós atualizado!' });
+  };
+
+  const handleAddNews = () => {
+    if (!newsForm.title || !newsForm.content) return;
+    const newNews = {
+      id: Date.now().toString(),
+      title: newsForm.title,
+      content: newsForm.content,
+      image: newsForm.image,
+      date: new Date().toISOString()
+    };
+    setNews([newNews, ...news]);
+    setNewsForm({ title: '', content: '', image: '' });
+    toast({ title: 'Novidade adicionada!' });
+  };
+
   const tabs = [
     { id: 'overview', label: 'Visão Geral', icon: LayoutDashboard },
     { id: 'analytics', label: 'Análises', icon: BarChart3 },
@@ -211,6 +265,8 @@ const AdminDashboard: React.FC = () => {
     { id: 'reviews', label: 'Avaliações', icon: MessageSquare },
     { id: 'announcements', label: 'Anúncios', icon: Megaphone },
     { id: 'chat', label: 'Chat', icon: MessageCircle },
+    { id: 'about', label: 'Sobre Nós', icon: Info },
+    { id: 'news', label: 'Novidades', icon: Newspaper },
     { id: 'settings', label: 'Definições', icon: Settings },
   ];
 
@@ -785,6 +841,215 @@ const AdminDashboard: React.FC = () => {
             </div>
           )}
 
+          {/* About Us Tab */}
+          {activeTab === 'about' && (
+            <div className="space-y-6">
+              <h1 className="text-3xl font-display font-bold text-foreground">Sobre Nós</h1>
+              
+              <div className="bg-card rounded-xl p-6 shadow-sm border border-border max-w-2xl">
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Descrição da Loja</label>
+                    <textarea
+                      value={aboutUs.description}
+                      onChange={(e) => setAboutUs((prev: typeof aboutUs) => ({ ...prev, description: e.target.value }))}
+                      className="w-full px-3 py-2 rounded-lg border border-border bg-background min-h-[120px]"
+                      placeholder="Escreve uma descrição sobre a tua loja..."
+                    />
+                  </div>
+                  
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium mb-1">
+                        <Mail className="w-4 h-4" /> Email
+                      </label>
+                      <Input
+                        type="email"
+                        value={aboutUs.email}
+                        onChange={(e) => setAboutUs((prev: typeof aboutUs) => ({ ...prev, email: e.target.value }))}
+                        placeholder="email@exemplo.com"
+                      />
+                    </div>
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium mb-1">
+                        <Phone className="w-4 h-4" /> Telefone
+                      </label>
+                      <Input
+                        value={aboutUs.phone}
+                        onChange={(e) => setAboutUs((prev: typeof aboutUs) => ({ ...prev, phone: e.target.value }))}
+                        placeholder="+351 123 456 789"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium mb-1">
+                        <LinkIcon className="w-4 h-4" /> WhatsApp
+                      </label>
+                      <Input
+                        value={aboutUs.whatsapp}
+                        onChange={(e) => setAboutUs((prev: typeof aboutUs) => ({ ...prev, whatsapp: e.target.value }))}
+                        placeholder="https://wa.me/351123456789"
+                      />
+                    </div>
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium mb-1">
+                        <LinkIcon className="w-4 h-4" /> Instagram
+                      </label>
+                      <Input
+                        value={aboutUs.instagram}
+                        onChange={(e) => setAboutUs((prev: typeof aboutUs) => ({ ...prev, instagram: e.target.value }))}
+                        placeholder="https://instagram.com/..."
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-medium mb-1">
+                      <LinkIcon className="w-4 h-4" /> Facebook
+                    </label>
+                    <Input
+                      value={aboutUs.facebook}
+                      onChange={(e) => setAboutUs((prev: typeof aboutUs) => ({ ...prev, facebook: e.target.value }))}
+                      placeholder="https://facebook.com/..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-medium mb-1">
+                      <Image className="w-4 h-4" /> Imagem
+                    </label>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setAboutUs((prev: typeof aboutUs) => ({ ...prev, image: reader.result as string }));
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      className="cursor-pointer"
+                    />
+                    {aboutUs.image && (
+                      <div className="mt-2">
+                        <img src={aboutUs.image} alt="Sobre nós" className="w-full max-w-xs h-32 object-cover rounded-lg" />
+                      </div>
+                    )}
+                    <p className="text-xs text-muted-foreground mt-1">Ou cola um URL:</p>
+                    <Input
+                      value={aboutUs.image.startsWith('data:') ? '' : aboutUs.image}
+                      onChange={(e) => setAboutUs((prev: typeof aboutUs) => ({ ...prev, image: e.target.value }))}
+                      placeholder="https://..."
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <Button onClick={handleSaveAbout}>
+                    Guardar Sobre Nós
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* News Tab */}
+          {activeTab === 'news' && (
+            <div className="space-y-6">
+              <h1 className="text-3xl font-display font-bold text-foreground">Novidades</h1>
+              
+              <div className="bg-card rounded-xl p-6 shadow-sm border border-border max-w-2xl">
+                <h2 className="font-semibold text-foreground mb-4">Adicionar Novidade</h2>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Título</label>
+                    <Input
+                      value={newsForm.title}
+                      onChange={(e) => setNewsForm(f => ({ ...f, title: e.target.value }))}
+                      placeholder="Título da novidade"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Conteúdo</label>
+                    <textarea
+                      value={newsForm.content}
+                      onChange={(e) => setNewsForm(f => ({ ...f, content: e.target.value }))}
+                      className="w-full px-3 py-2 rounded-lg border border-border bg-background min-h-[100px]"
+                      placeholder="Escreve o conteúdo da novidade..."
+                    />
+                  </div>
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-medium mb-1">
+                      <Image className="w-4 h-4" /> Imagem (opcional)
+                    </label>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setNewsForm(f => ({ ...f, image: reader.result as string }));
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      className="cursor-pointer"
+                    />
+                    {newsForm.image && (
+                      <div className="mt-2">
+                        <img src={newsForm.image} alt="Preview" className="w-20 h-20 object-cover rounded-lg" />
+                      </div>
+                    )}
+                  </div>
+                  <Button onClick={handleAddNews} disabled={!newsForm.title || !newsForm.content}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Adicionar Novidade
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-4 max-w-2xl">
+                {news.map(item => (
+                  <div key={item.id} className="bg-card rounded-xl p-4 shadow-sm border border-border">
+                    <div className="flex items-start gap-4">
+                      {item.image && (
+                        <img src={item.image} alt="" className="w-20 h-20 object-cover rounded-lg shrink-0" />
+                      )}
+                      <div className="flex-1">
+                        <h3 className="font-medium text-foreground">{item.title}</h3>
+                        <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{item.content}</p>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          {new Date(item.date).toLocaleDateString('pt-PT')}
+                        </p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          setNews(news.filter(n => n.id !== item.id));
+                          toast({ title: 'Novidade eliminada' });
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+                {news.length === 0 && (
+                  <div className="bg-card rounded-xl p-8 text-center text-muted-foreground border border-border">
+                    Sem novidades ainda
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Settings Tab */}
           {activeTab === 'settings' && (
             <div className="space-y-6">
@@ -796,11 +1061,11 @@ const AdminDashboard: React.FC = () => {
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium mb-1">Nome da Loja</label>
-                      <Input defaultValue="MegaShop" />
+                      <Input defaultValue="FIO & ALMA STUDIO" />
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-1">Email de Contacto</label>
-                      <Input defaultValue="suporte@megashop.com" type="email" />
+                      <Input defaultValue="suporte@fioealma.com" type="email" />
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-1">Moeda</label>

@@ -7,7 +7,7 @@ import { ProductsCarousel } from '@/components/products/ProductsCarousel';
 import { ChatWidget, ChatWidgetRef } from '@/components/chat/ChatWidget';
 import { CookieConsent } from '@/components/common/CookieConsent';
 import { useStore } from '@/contexts/StoreContext';
-import { Gift, Truck, Shield, HeadphonesIcon, Megaphone, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Gift, Truck, Shield, HeadphonesIcon, Megaphone, X, Mail, Phone, Newspaper, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface Announcement {
@@ -28,6 +28,20 @@ const Index: React.FC = () => {
   // Get current user for chat
   const [currentUser, setCurrentUser] = useState<{ name: string; email: string } | null>(null);
 
+  // About Us
+  const [aboutUs, setAboutUs] = useState<{
+    description: string;
+    email: string;
+    phone: string;
+    whatsapp: string;
+    instagram: string;
+    facebook: string;
+    image: string;
+  } | null>(null);
+
+  // News
+  const [news, setNews] = useState<Array<{ id: string; title: string; content: string; image: string; date: string }>>([]);
+
   useEffect(() => {
     const saved = localStorage.getItem('currentUser');
     if (saved) {
@@ -43,6 +57,18 @@ const Index: React.FC = () => {
     const dismissed = localStorage.getItem('dismissed_announcements');
     if (dismissed) {
       setDismissedAnnouncements(JSON.parse(dismissed));
+    }
+
+    // Load about us
+    const savedAbout = localStorage.getItem('site_about');
+    if (savedAbout) {
+      setAboutUs(JSON.parse(savedAbout));
+    }
+
+    // Load news
+    const savedNews = localStorage.getItem('site_news');
+    if (savedNews) {
+      setNews(JSON.parse(savedNews));
     }
   }, []);
 
@@ -155,6 +181,87 @@ const Index: React.FC = () => {
               </div>
             )}
           </section>
+
+          {/* News Section */}
+          {news.length > 0 && (
+            <section className="py-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                  <Newspaper className="w-5 h-5 text-primary" />
+                </div>
+                <h2 className="text-2xl font-display font-bold text-foreground">Novidades</h2>
+              </div>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {news.slice(0, 3).map(item => (
+                  <div key={item.id} className="bg-card rounded-xl overflow-hidden shadow-sm border border-border">
+                    {item.image && (
+                      <img src={item.image} alt="" className="w-full h-40 object-cover" />
+                    )}
+                    <div className="p-4">
+                      <h3 className="font-semibold text-foreground">{item.title}</h3>
+                      <p className="text-sm text-muted-foreground mt-1 line-clamp-3">{item.content}</p>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        {new Date(item.date).toLocaleDateString('pt-PT')}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* About Us Section */}
+          {aboutUs && (aboutUs.description || aboutUs.email || aboutUs.phone) && (
+            <section className="py-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                  <Info className="w-5 h-5 text-primary" />
+                </div>
+                <h2 className="text-2xl font-display font-bold text-foreground">Sobre Nós</h2>
+              </div>
+              <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
+                <div className="flex flex-col md:flex-row gap-6">
+                  {aboutUs.image && (
+                    <img src={aboutUs.image} alt="Sobre nós" className="w-full md:w-64 h-48 object-cover rounded-lg shrink-0" />
+                  )}
+                  <div className="flex-1 space-y-4">
+                    {aboutUs.description && (
+                      <p className="text-muted-foreground">{aboutUs.description}</p>
+                    )}
+                    <div className="flex flex-wrap gap-4">
+                      {aboutUs.email && (
+                        <a href={`mailto:${aboutUs.email}`} className="flex items-center gap-2 text-sm text-primary hover:underline">
+                          <Mail className="w-4 h-4" /> {aboutUs.email}
+                        </a>
+                      )}
+                      {aboutUs.phone && (
+                        <a href={`tel:${aboutUs.phone}`} className="flex items-center gap-2 text-sm text-primary hover:underline">
+                          <Phone className="w-4 h-4" /> {aboutUs.phone}
+                        </a>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap gap-3">
+                      {aboutUs.whatsapp && (
+                        <a href={aboutUs.whatsapp} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600 transition-colors">
+                          WhatsApp
+                        </a>
+                      )}
+                      {aboutUs.instagram && (
+                        <a href={aboutUs.instagram} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm rounded-lg hover:opacity-90 transition-opacity">
+                          Instagram
+                        </a>
+                      )}
+                      {aboutUs.facebook && (
+                        <a href={aboutUs.facebook} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors">
+                          Facebook
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
         </main>
 
         {/* Footer */}
