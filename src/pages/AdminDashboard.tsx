@@ -467,8 +467,8 @@ const AdminDashboard: React.FC = () => {
                         className="cursor-pointer"
                       />
                       {productForm.image && (
-                        <div className="mt-2">
-                          <img src={productForm.image} alt="Preview" className="w-20 h-20 object-cover rounded-lg" />
+                        <div className="mt-2 w-24 aspect-square overflow-hidden rounded-lg bg-muted">
+                          <img src={productForm.image} alt="Preview" className="w-full h-full object-cover" />
                         </div>
                       )}
                       <p className="text-xs text-muted-foreground mt-1">Ou cola um URL:</p>
@@ -530,7 +530,9 @@ const AdminDashboard: React.FC = () => {
                       <tr key={product.id} className="border-t border-border">
                         <td className="p-4">
                           <div className="flex items-center gap-3">
-                            <img src={product.image} alt="" className="w-12 h-12 rounded-lg object-cover" />
+                            <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted shrink-0">
+                              <img src={product.image} alt="" className="w-full h-full object-cover" />
+                            </div>
                             <span className="font-medium text-foreground">{product.name}</span>
                           </div>
                         </td>
@@ -936,8 +938,8 @@ const AdminDashboard: React.FC = () => {
                       className="cursor-pointer"
                     />
                     {aboutUs.image && (
-                      <div className="mt-2">
-                        <img src={aboutUs.image} alt="Sobre nós" className="w-full max-w-xs h-32 object-cover rounded-lg" />
+                      <div className="mt-2 w-full max-w-xs aspect-[4/3] overflow-hidden rounded-lg bg-muted">
+                        <img src={aboutUs.image} alt="Sobre nós" className="w-full h-full object-cover" />
                       </div>
                     )}
                     <p className="text-xs text-muted-foreground mt-1">Ou cola um URL:</p>
@@ -1002,8 +1004,8 @@ const AdminDashboard: React.FC = () => {
                       className="cursor-pointer"
                     />
                     {newsForm.image && (
-                      <div className="mt-2">
-                        <img src={newsForm.image} alt="Preview" className="w-20 h-20 object-cover rounded-lg" />
+                      <div className="mt-2 w-24 aspect-square overflow-hidden rounded-lg bg-muted">
+                        <img src={newsForm.image} alt="Preview" className="w-full h-full object-cover" />
                       </div>
                     )}
                   </div>
@@ -1019,7 +1021,9 @@ const AdminDashboard: React.FC = () => {
                   <div key={item.id} className="bg-card rounded-xl p-4 shadow-sm border border-border">
                     <div className="flex items-start gap-4">
                       {item.image && (
-                        <img src={item.image} alt="" className="w-20 h-20 object-cover rounded-lg shrink-0" />
+                        <div className="w-24 aspect-square overflow-hidden rounded-lg shrink-0 bg-muted">
+                          <img src={item.image} alt="" className="w-full h-full object-cover" />
+                        </div>
                       )}
                       <div className="flex-1">
                         <h3 className="font-medium text-foreground">{item.title}</h3>
