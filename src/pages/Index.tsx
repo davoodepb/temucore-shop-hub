@@ -195,7 +195,9 @@ const Index: React.FC = () => {
                 {news.slice(0, 3).map(item => (
                   <div key={item.id} className="bg-card rounded-xl overflow-hidden shadow-sm border border-border">
                     {item.image && (
-                      <img src={item.image} alt="" className="w-full h-40 object-cover" />
+                      <div className="aspect-[16/10] w-full overflow-hidden bg-muted">
+                        <img src={item.image} alt="" className="w-full h-full object-cover" />
+                      </div>
                     )}
                     <div className="p-4">
                       <h3 className="font-semibold text-foreground">{item.title}</h3>
@@ -222,7 +224,9 @@ const Index: React.FC = () => {
               <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
                 <div className="flex flex-col md:flex-row gap-6">
                   {aboutUs.image && (
-                    <img src={aboutUs.image} alt="Sobre nós" className="w-full md:w-64 h-48 object-cover rounded-lg shrink-0" />
+                    <div className="w-full md:w-64 aspect-[4/3] overflow-hidden rounded-lg shrink-0 bg-muted">
+                      <img src={aboutUs.image} alt="Sobre nós" className="w-full h-full object-cover" />
+                    </div>
                   )}
                   <div className="flex-1 space-y-4">
                     {aboutUs.description && (
