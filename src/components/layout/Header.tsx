@@ -49,19 +49,22 @@ export const Header: React.FC<HeaderProps> = ({ onSearch, onOpenChat }) => {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
-  const handleLogoClick = () => {
+  const handleLogoClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     const now = Date.now();
+    
     if (now - lastClickTime < 500) {
-      setClickCount(prev => prev + 1);
+      const newCount = clickCount + 1;
+      setClickCount(newCount);
+      
+      if (newCount >= 5) {
+        navigate('/admin-login');
+        setClickCount(0);
+      }
     } else {
       setClickCount(1);
     }
     setLastClickTime(now);
-
-    if (clickCount >= 4) {
-      navigate('/admin-login');
-      setClickCount(0);
-    }
   };
 
   const handleSearch = (e: React.FormEvent) => {
