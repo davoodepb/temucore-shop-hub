@@ -16,6 +16,7 @@ export default {
       fontFamily: {
         sans: ['Outfit', 'system-ui', 'sans-serif'],
         display: ['Space Grotesk', 'system-ui', 'sans-serif'],
+        script: ['Dancing Script', 'cursive'],
       },
       colors: {
         border: "hsl(var(--border))",
