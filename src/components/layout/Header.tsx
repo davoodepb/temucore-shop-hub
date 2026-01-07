@@ -96,12 +96,14 @@ export const Header: React.FC<HeaderProps> = ({ onSearch, onOpenChat }) => {
           <Link 
             to="/" 
             onClick={handleLogoClick}
-            className="flex items-center gap-2 select-none"
+            className="flex items-center gap-3 select-none"
           >
-            <div className="w-10 h-10 bg-gradient-to-r from-amber-600 to-amber-800 rounded-xl flex items-center justify-center shadow-lg">
-              <span className="text-xl font-bold text-primary-foreground">F</span>
-            </div>
-            <span className="text-xl font-display font-bold text-foreground hidden sm:block">
+            <img 
+              src="/images/logo.jpg" 
+              alt="FIO & ALMA STUDIO" 
+              className="w-12 h-12 rounded-full object-cover shadow-lg"
+            />
+            <span className="text-xl font-script text-foreground hidden sm:block">
               FIO & ALMA<span className="text-primary"> STUDIO</span>
             </span>
           </Link>

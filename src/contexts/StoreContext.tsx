@@ -61,7 +61,7 @@ interface StoreContextType {
   deleteReview: (id: string) => void;
   addOrder: (order: Omit<Order, 'id' | 'date'>) => void;
   updateOrderStatus: (id: string, status: Order['status']) => void;
-  adminLogin: (password: string) => boolean;
+  adminLogin: (password: string, password2?: string) => boolean;
   adminLogout: () => void;
 }
 
@@ -228,8 +228,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setOrders(orders.map(o => o.id === id ? { ...o, status } : o));
   };
 
-  const adminLogin = (password: string): boolean => {
-    if (password === ADMIN_PASSWORD) {
+const adminLogin = (password: string, password2?: string): boolean => {
+    if (password === ADMIN_PASSWORD && password2 === ADMIN_PASSWORD) {
       setIsAdminLoggedIn(true);
       return true;
     }

@@ -8,6 +8,7 @@ import { useStore } from '@/contexts/StoreContext';
 
 const AdminLogin: React.FC = () => {
   const [password, setPassword] = useState('');
+  const [password2, setPassword2] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { adminLogin, isAdminLoggedIn } = useStore();
@@ -26,11 +27,12 @@ const AdminLogin: React.FC = () => {
     setIsLoading(true);
 
     setTimeout(() => {
-      if (adminLogin(password)) {
+      if (adminLogin(password, password2)) {
         navigate('/admin');
       } else {
-        setError('Palavra-passe inválida. Acesso negado.');
+        setError('Palavras-passe inválidas. Acesso negado.');
         setPassword('');
+        setPassword2('');
       }
       setIsLoading(false);
     }, 500);
@@ -52,25 +54,40 @@ const AdminLogin: React.FC = () => {
 
           <div className="bg-card rounded-2xl p-8 shadow-2xl border border-border">
             <div className="flex flex-col items-center mb-8">
-              <div className="w-16 h-16 bg-gradient-to-r from-amber-600 to-amber-800 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
-                <Lock className="w-8 h-8 text-primary-foreground" />
-              </div>
-              <h1 className="text-2xl font-display font-bold text-foreground">Acesso Admin</h1>
-              <p className="text-muted-foreground text-sm mt-2">Introduz a palavra-passe para continuar</p>
+              <img 
+                src="/images/logo.jpg" 
+                alt="FIO & ALMA STUDIO" 
+                className="w-20 h-20 rounded-full object-cover shadow-lg mb-4"
+              />
+              <h1 className="text-2xl font-script text-foreground">Acesso Admin</h1>
+              <p className="text-muted-foreground text-sm mt-2">Introduz as palavras-passe para continuar</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Palavra-passe
+                  Primeira Palavra-passe
                 </label>
                 <Input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Introduz a palavra-passe"
+                  placeholder="Introduz a primeira palavra-passe"
                   className="h-12"
                   autoFocus
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Segunda Palavra-passe
+                </label>
+                <Input
+                  type="password"
+                  value={password2}
+                  onChange={(e) => setPassword2(e.target.value)}
+                  placeholder="Introduz a segunda palavra-passe"
+                  className="h-12"
                 />
               </div>
 
@@ -86,7 +103,7 @@ const AdminLogin: React.FC = () => {
                 variant="default"
                 size="lg"
                 className="w-full bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900"
-                disabled={isLoading || !password}
+                disabled={isLoading || !password || !password2}
               >
                 {isLoading ? (
                   <span className="animate-pulse">A verificar...</span>
