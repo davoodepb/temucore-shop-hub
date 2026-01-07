@@ -129,25 +129,6 @@ const Index: React.FC = () => {
             </div>
           ))}
 
-          {/* Trust Badges */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-            {[
-              { icon: Truck, title: 'Envio Grátis', desc: 'Compras +€35' },
-              { icon: Shield, title: 'Pagamento Seguro', desc: '100% Protegido' },
-              { icon: Gift, title: 'Ofertas Diárias', desc: 'Até 90% DESC' },
-              { icon: HeadphonesIcon, title: 'Suporte 24/7', desc: 'Sempre aqui' },
-            ].map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="flex items-center gap-3 bg-card rounded-xl p-3 shadow-sm">
-                <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
-                  <Icon className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <p className="font-medium text-sm text-foreground">{title}</p>
-                  <p className="text-xs text-muted-foreground">{desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
 
           {/* Flash Deals Section */}
           {!searchQuery && <FlashDeals />}

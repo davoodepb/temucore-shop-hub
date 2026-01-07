@@ -212,37 +212,6 @@ export const Header: React.FC<HeaderProps> = ({ onSearch, onOpenChat }) => {
         </div>
       </div>
 
-      {/* Categories bar */}
-      <div className="border-t border-border bg-muted/30">
-        <div className="container">
-          <nav className="flex items-center gap-1 py-2 overflow-x-auto scrollbar-hide">
-            {['Todos', 'Eletrónica', 'Moda', 'Casa', 'Flash Deals'].map((cat) => (
-              <Button
-                key={cat}
-                variant={cat === 'Flash Deals' ? 'deal' : 'ghost'}
-                size="sm"
-                className={cn(
-                  "whitespace-nowrap",
-                  cat === 'Flash Deals' && "animate-none"
-                )}
-                onClick={() => {
-                  const searchMap: Record<string, string> = {
-                    'Todos': '',
-                    'Eletrónica': 'Electronics',
-                    'Moda': 'Fashion',
-                    'Casa': 'Home',
-                    'Flash Deals': 'Flash Deals'
-                  };
-                  onSearch?.(searchMap[cat] || '');
-                }}
-              >
-                {cat === 'Flash Deals' && <Zap className="w-3 h-3" />}
-                {cat}
-              </Button>
-            ))}
-          </nav>
-        </div>
-      </div>
     </header>
   );
 };
