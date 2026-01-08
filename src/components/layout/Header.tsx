@@ -130,7 +130,7 @@ export const Header: React.FC<HeaderProps> = ({ onSearch, onOpenChat }) => {
               size="icon"
               onClick={onOpenChat}
               className="relative"
-              title="Chat com Suporte"
+              aria-label="Abrir chat de suporte"
             >
               <MessageCircle className="w-5 h-5" />
             </Button>
@@ -141,6 +141,7 @@ export const Header: React.FC<HeaderProps> = ({ onSearch, onOpenChat }) => {
                 variant="ghost"
                 size="icon"
                 onClick={() => currentUser ? setIsUserMenuOpen(!isUserMenuOpen) : navigate('/auth')}
+                aria-label={currentUser ? "Menu do utilizador" : "Fazer login"}
               >
                 <User className="w-5 h-5" />
               </Button>
@@ -170,11 +171,11 @@ export const Header: React.FC<HeaderProps> = ({ onSearch, onOpenChat }) => {
               )}
             </div>
 
-            <Link to="/cart" className="relative">
-              <Button variant="ghost" size="icon" className="relative">
+            <Link to="/cart" className="relative" aria-label="Ver carrinho de compras">
+              <Button variant="ghost" size="icon" className="relative" aria-label="Carrinho">
                 <ShoppingCart className="w-5 h-5" />
                 {cartItemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-xs font-bold rounded-full flex items-center justify-center animate-scale-in">
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-xs font-bold rounded-full flex items-center justify-center animate-scale-in" aria-label={`${cartItemCount} itens no carrinho`}>
                     {cartItemCount > 99 ? '99+' : cartItemCount}
                   </span>
                 )}
@@ -186,6 +187,7 @@ export const Header: React.FC<HeaderProps> = ({ onSearch, onOpenChat }) => {
               size="icon"
               className="md:hidden"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label={isMobileMenuOpen ? "Fechar menu" : "Abrir menu"}
             >
               {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </Button>

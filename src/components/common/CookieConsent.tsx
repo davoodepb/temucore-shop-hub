@@ -52,8 +52,8 @@ export const CookieConsent: React.FC = () => {
             <div className="flex-1">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-display font-bold text-foreground">🍪 Utilizamos cookies</h3>
-                <button onClick={handleRejectAll} className="text-muted-foreground hover:text-foreground">
-                  <X className="w-5 h-5" />
+                <button onClick={handleRejectAll} aria-label="Rejeitar cookies" className="text-muted-foreground hover:text-foreground">
+                  <X className="w-5 h-5" aria-hidden="true" />
                 </button>
               </div>
               
