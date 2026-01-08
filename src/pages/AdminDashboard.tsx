@@ -25,7 +25,9 @@ import {
   Mail,
   Phone,
   Link as LinkIcon,
-  Image
+  Image,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,6 +35,7 @@ import { useStore, Product } from '@/contexts/StoreContext';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { AnalyticsCharts } from '@/components/admin/AnalyticsCharts';
+import { useTheme } from '@/hooks/use-theme';
 
 type Tab = 'overview' | 'analytics' | 'products' | 'orders' | 'reviews' | 'announcements' | 'chat' | 'about' | 'news' | 'settings';
 
@@ -67,6 +70,7 @@ const AdminDashboard: React.FC = () => {
   } = useStore();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { theme, setTheme } = useTheme();
   const [activeTab, setActiveTab] = useState<Tab>('overview');
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isAddingProduct, setIsAddingProduct] = useState(false);
@@ -1060,6 +1064,37 @@ const AdminDashboard: React.FC = () => {
               <h1 className="text-3xl font-display font-bold text-foreground">Definições</h1>
               
               <div className="grid gap-6 max-w-2xl">
+                {/* Aparência */}
+                <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
+                  <h2 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                    {theme === 'dark' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+                    Aparência
+                  </h2>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-foreground">Modo Escuro</p>
+                        <p className="text-sm text-muted-foreground">Alterna entre modo claro e escuro</p>
+                      </div>
+                      <button
+                        onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                        className={cn(
+                          "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
+                          theme === 'dark' ? "bg-primary" : "bg-muted"
+                        )}
+                        aria-label="Alternar modo escuro"
+                      >
+                        <span
+                          className={cn(
+                            "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
+                            theme === 'dark' ? "translate-x-6" : "translate-x-1"
+                          )}
+                        />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
                   <h2 className="font-semibold text-foreground mb-4">Loja</h2>
                   <div className="space-y-4">

@@ -69,12 +69,13 @@ export const ChatWidget = forwardRef<ChatWidgetRef, ChatWidgetProps>(({ customer
       {/* Chat Button */}
       <button
         onClick={() => setIsOpen(true)}
+        aria-label="Abrir chat de suporte"
         className={cn(
           "fixed bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-r from-primary to-red-500 text-primary-foreground rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-110",
           isOpen && "hidden"
         )}
       >
-        <MessageCircle className="w-6 h-6" />
+        <MessageCircle className="w-6 h-6" aria-hidden="true" />
       </button>
 
       {/* Chat Window */}
@@ -91,8 +92,8 @@ export const ChatWidget = forwardRef<ChatWidgetRef, ChatWidgetProps>(({ customer
                 <p className="text-xs opacity-80">Normalmente responde em minutos</p>
               </div>
             </div>
-            <button onClick={() => setIsOpen(false)} className="hover:bg-primary-foreground/20 p-1 rounded">
-              <X className="w-5 h-5" />
+            <button onClick={() => setIsOpen(false)} aria-label="Fechar chat" className="hover:bg-primary-foreground/20 p-1 rounded">
+              <X className="w-5 h-5" aria-hidden="true" />
             </button>
           </div>
 
@@ -142,8 +143,8 @@ export const ChatWidget = forwardRef<ChatWidgetRef, ChatWidgetProps>(({ customer
                   placeholder="Escreva uma mensagem..."
                   className="flex-1 px-4 py-2 bg-muted rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
-                <Button size="icon" onClick={handleSend} disabled={!inputText.trim()}>
-                  <Send className="w-4 h-4" />
+                <Button size="icon" onClick={handleSend} disabled={!inputText.trim()} aria-label="Enviar mensagem">
+                  <Send className="w-4 h-4" aria-hidden="true" />
                 </Button>
               </div>
             </div>
