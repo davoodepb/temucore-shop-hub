@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Search, Menu, X, Zap, User, Package, LogOut, MessageCircle } from 'lucide-react';
+import { ShoppingCart, Search, Menu, X, Zap, User, Package, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useStore } from '@/contexts/StoreContext';
@@ -8,7 +8,6 @@ import { cn } from '@/lib/utils';
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
-  onOpenChat?: () => void;
 }
 
 interface CurrentUser {
@@ -17,7 +16,7 @@ interface CurrentUser {
   email: string;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onSearch, onOpenChat }) => {
+export const Header: React.FC<HeaderProps> = ({ onSearch }) => {
   const { getCartItemCount } = useStore();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
@@ -124,17 +123,6 @@ export const Header: React.FC<HeaderProps> = ({ onSearch, onOpenChat }) => {
 
           {/* Actions */}
           <div className="flex items-center gap-1">
-            {/* Chat Button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onOpenChat}
-              className="relative"
-              aria-label="Abrir chat de suporte"
-            >
-              <MessageCircle className="w-5 h-5" />
-            </Button>
-
             {/* User Menu */}
             <div className="relative">
               <Button

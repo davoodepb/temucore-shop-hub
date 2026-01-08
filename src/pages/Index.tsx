@@ -1,14 +1,12 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Header } from '@/components/layout/Header';
 import { ProductCard } from '@/components/products/ProductCard';
 import { FlashDeals } from '@/components/products/FlashDeals';
 import { ProductsCarousel } from '@/components/products/ProductsCarousel';
-import { ChatWidget, ChatWidgetRef } from '@/components/chat/ChatWidget';
 import { CookieConsent } from '@/components/common/CookieConsent';
 import { useStore } from '@/contexts/StoreContext';
-import { Gift, Truck, Shield, HeadphonesIcon, Megaphone, X, Mail, Phone, Newspaper, Info } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Megaphone, X, Mail, Phone, Newspaper, Info } from 'lucide-react';
 
 interface Announcement {
   id: string;
@@ -23,10 +21,6 @@ const Index: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [dismissedAnnouncements, setDismissedAnnouncements] = useState<string[]>([]);
-  const chatRef = useRef<ChatWidgetRef>(null);
-  
-  // Get current user for chat
-  const [currentUser, setCurrentUser] = useState<{ name: string; email: string } | null>(null);
 
   // About Us
   const [aboutUs, setAboutUs] = useState<{
@@ -43,11 +37,6 @@ const Index: React.FC = () => {
   const [news, setNews] = useState<Array<{ id: string; title: string; content: string; image: string; date: string }>>([]);
 
   useEffect(() => {
-    const saved = localStorage.getItem('currentUser');
-    if (saved) {
-      setCurrentUser(JSON.parse(saved));
-    }
-
     // Load announcements
     const savedAnnouncements = localStorage.getItem('announcements');
     if (savedAnnouncements) {
@@ -100,10 +89,6 @@ const Index: React.FC = () => {
 
   const featuredProducts = products.filter(p => p.isFeatured && !p.isFlashDeal);
 
-  const handleOpenChat = () => {
-    chatRef.current?.openChat();
-  };
-
   return (
     <>
       <Helmet>
@@ -112,7 +97,7 @@ const Index: React.FC = () => {
       </Helmet>
 
       <div className="min-h-screen bg-background">
-        <Header onSearch={setSearchQuery} onOpenChat={handleOpenChat} />
+        <Header onSearch={setSearchQuery} />
 
         <main className="container py-6">
           {/* Announcements */}
@@ -268,9 +253,6 @@ const Index: React.FC = () => {
           </div>
         </footer>
 
-        {/* Chat Widget */}
-        <ChatWidget ref={chatRef} customerName={currentUser?.name} customerEmail={currentUser?.email} />
-        
         {/* Cookie Consent */}
         <CookieConsent />
       </div>
