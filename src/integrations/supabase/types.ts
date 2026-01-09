@@ -14,7 +14,87 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      chat_messages: {
+        Row: {
+          created_at: string
+          customer_email: string
+          customer_name: string
+          id: string
+          is_read: boolean
+          message: string
+          sender: string
+        }
+        Insert: {
+          created_at?: string
+          customer_email: string
+          customer_name: string
+          id?: string
+          is_read?: boolean
+          message: string
+          sender: string
+        }
+        Update: {
+          created_at?: string
+          customer_email?: string
+          customer_name?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          sender?: string
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          id: string
+          image: string
+          is_featured: boolean
+          is_flash_deal: boolean
+          name: string
+          original_price: number | null
+          price: number
+          rating: number
+          review_count: number
+          stock: number
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          image?: string
+          is_featured?: boolean
+          is_flash_deal?: boolean
+          name: string
+          original_price?: number | null
+          price: number
+          rating?: number
+          review_count?: number
+          stock?: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          image?: string
+          is_featured?: boolean
+          is_flash_deal?: boolean
+          name?: string
+          original_price?: number | null
+          price?: number
+          rating?: number
+          review_count?: number
+          stock?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useStore } from '@/contexts/StoreContext';
+import { useProducts } from '@/hooks/useProducts';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
@@ -31,7 +32,8 @@ const InstagramIcon = () => (
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { products, reviews, addToCart, addReview } = useStore();
+  const { products } = useProducts();
+  const { reviews, addToCart, addReview } = useStore();
   const { toast } = useToast();
   
   const [quantity, setQuantity] = useState(1);

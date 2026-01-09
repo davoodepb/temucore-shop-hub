@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Star, ShoppingCart, Zap, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useStore, Product } from '@/contexts/StoreContext';
+import { useStore } from '@/contexts/StoreContext';
+import { Product } from '@/hooks/useProducts';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 

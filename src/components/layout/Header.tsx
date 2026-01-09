@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Search, Menu, X, Zap, User, Package, LogOut } from 'lucide-react';
+import { ShoppingCart, Search, Menu, X, Zap, User, Package, LogOut, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useStore } from '@/contexts/StoreContext';
 import { cn } from '@/lib/utils';
+import { HeaderChatWidget } from '@/components/chat/HeaderChatWidget';
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
@@ -24,6 +25,7 @@ export const Header: React.FC<HeaderProps> = ({ onSearch }) => {
   const [lastClickTime, setLastClickTime] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
 
   const cartItemCount = getCartItemCount();
@@ -123,6 +125,17 @@ export const Header: React.FC<HeaderProps> = ({ onSearch }) => {
 
           {/* Actions */}
           <div className="flex items-center gap-1">
+            {/* Chat Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsChatOpen(!isChatOpen)}
+              className="relative"
+              aria-label="Abrir chat de suporte"
+            >
+              <MessageCircle className="w-5 h-5" />
+            </Button>
+
             {/* User Menu */}
             <div className="relative">
               <Button
@@ -202,6 +215,13 @@ export const Header: React.FC<HeaderProps> = ({ onSearch }) => {
         </div>
       </div>
 
+      {/* Chat Widget */}
+      <HeaderChatWidget
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+        customerName={currentUser?.name}
+        customerEmail={currentUser?.email}
+      />
     </header>
   );
 };

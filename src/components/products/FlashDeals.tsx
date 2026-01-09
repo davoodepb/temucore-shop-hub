@@ -1,10 +1,10 @@
 import React from 'react';
 import { Zap } from 'lucide-react';
 import { ProductCard } from './ProductCard';
-import { useStore } from '@/contexts/StoreContext';
+import { useProducts } from '@/hooks/useProducts';
 
 export const FlashDeals: React.FC = () => {
-  const { products } = useStore();
+  const { products } = useProducts();
   const flashDeals = products.filter(p => p.isFlashDeal);
 
   if (flashDeals.length === 0) return null;
