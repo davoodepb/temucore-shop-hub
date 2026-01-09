@@ -31,7 +31,9 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useStore, Product } from '@/contexts/StoreContext';
+import { useStore } from '@/contexts/StoreContext';
+import { useProducts, Product } from '@/hooks/useProducts';
+import { useAllChats } from '@/hooks/useChatMessages';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { AnalyticsCharts } from '@/components/admin/AnalyticsCharts';
@@ -56,18 +58,17 @@ interface ChatMessage {
 
 const AdminDashboard: React.FC = () => {
   const { 
-    products, 
     orders, 
     reviews, 
     isAdminLoggedIn, 
     adminLogout, 
-    addProduct, 
-    updateProduct, 
-    deleteProduct,
     approveReview,
     deleteReview,
     updateOrderStatus
   } = useStore();
+  
+  const { products, addProduct, updateProduct, deleteProduct } = useProducts();
+  const { chats: allChats, sendAdminReply, markAsRead } = useAllChats();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
@@ -94,7 +95,6 @@ const AdminDashboard: React.FC = () => {
   const [announcementForm, setAnnouncementForm] = useState({ title: '', body: '' });
 
   // Chat
-  const [allChats, setAllChats] = useState<Record<string, { name: string; messages: ChatMessage[] }>>({});
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [adminReply, setAdminReply] = useState('');
 
@@ -118,23 +118,6 @@ const AdminDashboard: React.FC = () => {
     return saved ? JSON.parse(saved) : [];
   });
   const [newsForm, setNewsForm] = useState({ title: '', content: '', image: '' });
-
-  useEffect(() => {
-    // Load all chats from localStorage
-    const chats: Record<string, { name: string; messages: ChatMessage[] }> = {};
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key?.startsWith('chat_')) {
-        const email = key.replace('chat_', '');
-        const messages = JSON.parse(localStorage.getItem(key) || '[]');
-        // Get user name
-        const users = JSON.parse(localStorage.getItem('users') || '[]');
-        const user = users.find((u: any) => u.email === email);
-        chats[email] = { name: user?.name || email, messages };
-      }
-    }
-    setAllChats(chats);
-  }, [activeTab]);
 
   useEffect(() => {
     localStorage.setItem('announcements', JSON.stringify(announcements));
@@ -224,22 +207,18 @@ const AdminDashboard: React.FC = () => {
     toast({ title: 'Anúncio publicado!' });
   };
 
-  const handleSendAdminReply = () => {
+  const handleSendAdminReply = async () => {
     if (!adminReply.trim() || !selectedChat) return;
-    const newMessage: ChatMessage = {
-      id: Date.now().toString(),
-      text: adminReply.trim(),
-      sender: 'admin',
-      timestamp: new Date(),
-    };
-    const updatedMessages = [...(allChats[selectedChat]?.messages || []), newMessage];
-    localStorage.setItem(`chat_${selectedChat}`, JSON.stringify(updatedMessages));
-    setAllChats(prev => ({
-      ...prev,
-      [selectedChat]: { ...prev[selectedChat], messages: updatedMessages }
-    }));
-    setAdminReply('');
-    toast({ title: 'Resposta enviada!' });
+    const chatData = allChats[selectedChat];
+    if (!chatData) return;
+    
+    try {
+      await sendAdminReply(selectedChat, chatData.name, adminReply.trim());
+      setAdminReply('');
+      toast({ title: 'Resposta enviada!' });
+    } catch {
+      toast({ title: 'Erro ao enviar', variant: 'destructive' });
+    }
   };
 
   const handleSaveAbout = () => {
@@ -821,7 +800,7 @@ const AdminDashboard: React.FC = () => {
                                 : "bg-muted rounded-bl-sm"
                             )}
                           >
-                            {msg.text}
+                            {msg.message}
                           </div>
                         ))}
                       </div>

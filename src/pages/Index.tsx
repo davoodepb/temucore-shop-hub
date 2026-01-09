@@ -5,7 +5,7 @@ import { ProductCard } from '@/components/products/ProductCard';
 import { FlashDeals } from '@/components/products/FlashDeals';
 import { ProductsCarousel } from '@/components/products/ProductsCarousel';
 import { CookieConsent } from '@/components/common/CookieConsent';
-import { useStore } from '@/contexts/StoreContext';
+import { useProducts } from '@/hooks/useProducts';
 import { Megaphone, X, Mail, Phone, Newspaper, Info } from 'lucide-react';
 
 interface Announcement {
@@ -17,7 +17,7 @@ interface Announcement {
 }
 
 const Index: React.FC = () => {
-  const { products } = useStore();
+  const { products, loading } = useProducts();
   const [searchQuery, setSearchQuery] = useState('');
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [dismissedAnnouncements, setDismissedAnnouncements] = useState<string[]>([]);
