@@ -135,8 +135,8 @@ const AdminDashboard: React.FC = () => {
     return <Navigate to="/admin-login" replace />;
   }
 
-  const handleLogout = () => {
-    adminLogout();
+  const handleLogout = async () => {
+    await adminLogout();
     navigate('/');
   };
 
