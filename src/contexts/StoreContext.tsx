@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { User, Session } from '@supabase/supabase-js';
 
 export interface Product {
   id: string;
@@ -47,6 +49,8 @@ interface StoreContextType {
   reviews: Review[];
   orders: Order[];
   isAdminLoggedIn: boolean;
+  isLoading: boolean;
+  user: User | null;
   addToCart: (product: Product, quantity?: number) => { success: boolean; message: string };
   removeFromCart: (productId: string) => void;
   updateCartQuantity: (productId: string, quantity: number) => { success: boolean; message: string };
@@ -61,18 +65,21 @@ interface StoreContextType {
   deleteReview: (id: string) => void;
   addOrder: (order: Omit<Order, 'id' | 'date'>) => void;
   updateOrderStatus: (id: string, status: Order['status']) => void;
-  adminLogin: (password: string, password2?: string) => boolean;
-  adminLogout: () => void;
+  adminLogin: (email: string, password: string) => Promise<{ success: boolean; message: string }>;
+  adminLogout: () => Promise<void>;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
-
-const ADMIN_PASSWORD = 'admin123';
 
 // Produtos vazios - apenas o admin pode adicionar produtos
 const initialProducts: Product[] = [];
 
 export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  
   const [products, setProducts] = useState<Product[]>(() => {
     const saved = localStorage.getItem('store_products');
     return saved ? JSON.parse(saved) : initialProducts;
@@ -93,10 +100,64 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     return saved ? JSON.parse(saved) : [];
   });
 
-  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(() => {
-    const saved = localStorage.getItem('admin_logged_in');
-    return saved === 'true';
-  });
+  // Check admin role
+  const checkAdminRole = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .eq('role', 'admin')
+        .maybeSingle();
+      
+      if (error) {
+        console.error('Error checking admin role:', error);
+        return false;
+      }
+      return !!data;
+    } catch {
+      return false;
+    }
+  };
+
+  // Auth state listener
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          setTimeout(() => {
+            checkAdminRole(session.user.id).then(isAdmin => {
+              setIsAdminLoggedIn(isAdmin);
+              setIsLoading(false);
+            });
+          }, 0);
+        } else {
+          setIsAdminLoggedIn(false);
+          setIsLoading(false);
+        }
+      }
+    );
+
+    // Check existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        checkAdminRole(session.user.id).then(isAdmin => {
+          setIsAdminLoggedIn(isAdmin);
+          setIsLoading(false);
+        });
+      } else {
+        setIsLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('store_products', JSON.stringify(products));
@@ -114,9 +175,6 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     localStorage.setItem('store_orders', JSON.stringify(orders));
   }, [orders]);
 
-  useEffect(() => {
-    localStorage.setItem('admin_logged_in', String(isAdminLoggedIn));
-  }, [isAdminLoggedIn]);
 
   const addToCart = (product: Product, quantity: number = 1): { success: boolean; message: string } => {
     const existingItem = cart.find(item => item.product.id === product.id);
@@ -228,16 +286,38 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setOrders(orders.map(o => o.id === id ? { ...o, status } : o));
   };
 
-const adminLogin = (password: string, password2?: string): boolean => {
-    if (password === ADMIN_PASSWORD && password2 === ADMIN_PASSWORD) {
-      setIsAdminLoggedIn(true);
-      return true;
+  const adminLogin = async (email: string, password: string): Promise<{ success: boolean; message: string }> => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        return { success: false, message: error.message };
+      }
+
+      if (data.user) {
+        const isAdmin = await checkAdminRole(data.user.id);
+        if (!isAdmin) {
+          await supabase.auth.signOut();
+          return { success: false, message: 'Não tens permissão de administrador.' };
+        }
+        setIsAdminLoggedIn(true);
+        return { success: true, message: 'Login bem sucedido!' };
+      }
+
+      return { success: false, message: 'Erro ao fazer login.' };
+    } catch {
+      return { success: false, message: 'Erro de conexão.' };
     }
-    return false;
   };
 
-  const adminLogout = () => {
+  const adminLogout = async () => {
+    await supabase.auth.signOut();
     setIsAdminLoggedIn(false);
+    setUser(null);
+    setSession(null);
   };
 
   return (
@@ -247,6 +327,8 @@ const adminLogin = (password: string, password2?: string): boolean => {
       reviews,
       orders,
       isAdminLoggedIn,
+      isLoading,
+      user,
       addToCart,
       removeFromCart,
       updateCartQuantity,
