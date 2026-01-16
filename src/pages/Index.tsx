@@ -236,25 +236,6 @@ const Index: React.FC = () => {
           )}
         </main>
 
-        {/* Footer */}
-        <footer className="bg-card border-t border-border mt-12">
-          <div className="container py-8">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-amber-600 to-amber-800 rounded-lg flex items-center justify-center">
-                  <span className="text-sm font-bold text-primary-foreground">F</span>
-                </div>
-                <span className="font-display font-bold text-foreground">
-                  FIO & ALMA<span className="text-primary"> STUDIO</span>
-                </span>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                © 2024 FIO & ALMA STUDIO. Todos os direitos reservados.
-              </p>
-            </div>
-          </div>
-        </footer>
-
         {/* Cookie Consent */}
         <CookieConsent />
       </div>
