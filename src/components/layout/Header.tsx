@@ -82,15 +82,6 @@ export const Header: React.FC<HeaderProps> = ({ onSearch }) => {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-card/95 backdrop-blur-md border-b border-border shadow-sm">
-      {/* Top banner */}
-      <div className="bg-gradient-to-r from-primary to-red-500 text-primary-foreground py-1.5 px-4">
-        <div className="container flex items-center justify-center gap-2 text-sm font-medium">
-          <Zap className="w-4 h-4 animate-bounce" />
-          <span>ENVIO GRÁTIS em compras acima de €35 • Até 90% DESCONTO em Flash Deals!</span>
-          <Zap className="w-4 h-4 animate-bounce" />
-        </div>
-      </div>
-
       <div className="container">
         <div className="flex items-center justify-between h-16 gap-4">
           {/* Logo */}
