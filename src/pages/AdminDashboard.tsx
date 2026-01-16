@@ -25,9 +25,11 @@ import {
   Mail,
   Phone,
   Link as LinkIcon,
-  Image,
+  Image as ImageIcon,
   Sun,
-  Moon
+  Moon,
+  Video,
+  Wallpaper
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -38,8 +40,10 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { AnalyticsCharts } from '@/components/admin/AnalyticsCharts';
 import { useTheme } from '@/hooks/use-theme';
+import { useSiteSettings, BackgroundSettings } from '@/hooks/useSiteSettings';
+import { Slider } from '@/components/ui/slider';
 
-type Tab = 'overview' | 'analytics' | 'products' | 'orders' | 'reviews' | 'announcements' | 'chat' | 'about' | 'news' | 'settings';
+type Tab = 'overview' | 'analytics' | 'products' | 'orders' | 'reviews' | 'announcements' | 'chat' | 'about' | 'news' | 'background' | 'settings';
 
 interface Announcement {
   id: string;
@@ -117,6 +121,20 @@ const AdminDashboard: React.FC = () => {
     const saved = localStorage.getItem('site_news');
     return saved ? JSON.parse(saved) : [];
   });
+
+  // Site Background
+  const { settings: siteSettings, updateBackground, loading: siteSettingsLoading } = useSiteSettings();
+  const [backgroundForm, setBackgroundForm] = useState<BackgroundSettings>({
+    type: 'none',
+    url: '',
+    opacity: 0.3
+  });
+
+  useEffect(() => {
+    if (!siteSettingsLoading) {
+      setBackgroundForm(siteSettings.background);
+    }
+  }, [siteSettings.background, siteSettingsLoading]);
   const [newsForm, setNewsForm] = useState({ title: '', content: '', image: '' });
 
   useEffect(() => {
@@ -250,6 +268,7 @@ const AdminDashboard: React.FC = () => {
     { id: 'chat', label: 'Chat', icon: MessageCircle },
     { id: 'about', label: 'Sobre Nós', icon: Info },
     { id: 'news', label: 'Novidades', icon: Newspaper },
+    { id: 'background', label: 'Fundo do Site', icon: Wallpaper },
     { id: 'settings', label: 'Definições', icon: Settings },
   ];
 
@@ -903,7 +922,7 @@ const AdminDashboard: React.FC = () => {
 
                   <div>
                     <label className="flex items-center gap-2 text-sm font-medium mb-1">
-                      <Image className="w-4 h-4" /> Imagem
+                      <ImageIcon className="w-4 h-4" /> Imagem
                     </label>
                     <Input
                       type="file"
@@ -969,7 +988,7 @@ const AdminDashboard: React.FC = () => {
                   </div>
                   <div>
                     <label className="flex items-center gap-2 text-sm font-medium mb-1">
-                      <Image className="w-4 h-4" /> Imagem (opcional)
+                      <ImageIcon className="w-4 h-4" /> Imagem (opcional)
                     </label>
                     <Input
                       type="file"
@@ -1033,6 +1052,144 @@ const AdminDashboard: React.FC = () => {
                     Sem novidades ainda
                   </div>
                 )}
+              </div>
+            </div>
+          )}
+
+          {/* Background Tab */}
+          {activeTab === 'background' && (
+            <div className="space-y-6">
+              <h1 className="text-3xl font-display font-bold text-foreground">Fundo do Site</h1>
+              
+              <div className="grid gap-6 max-w-2xl">
+                <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
+                  <h2 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                    <Wallpaper className="w-5 h-5" />
+                    Tipo de Fundo
+                  </h2>
+                  <div className="grid grid-cols-3 gap-3">
+                    {[
+                      { type: 'none' as const, label: 'Nenhum', icon: X },
+                      { type: 'image' as const, label: 'Imagem', icon: ImageIcon },
+                      { type: 'video' as const, label: 'Vídeo', icon: Video },
+                    ].map((option) => (
+                      <button
+                        key={option.type}
+                        onClick={() => setBackgroundForm(prev => ({ ...prev, type: option.type }))}
+                        className={cn(
+                          "flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all",
+                          backgroundForm.type === option.type
+                            ? "border-primary bg-primary/10"
+                            : "border-border hover:border-primary/50"
+                        )}
+                      >
+                        <option.icon className={cn(
+                          "w-6 h-6",
+                          backgroundForm.type === option.type ? "text-primary" : "text-muted-foreground"
+                        )} />
+                        <span className={cn(
+                          "text-sm font-medium",
+                          backgroundForm.type === option.type ? "text-primary" : "text-muted-foreground"
+                        )}>
+                          {option.label}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {backgroundForm.type !== 'none' && (
+                  <>
+                    <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
+                      <h2 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                        {backgroundForm.type === 'image' ? <ImageIcon className="w-5 h-5" /> : <Video className="w-5 h-5" />}
+                        {backgroundForm.type === 'image' ? 'URL da Imagem' : 'URL do Vídeo'}
+                      </h2>
+                      <Input
+                        value={backgroundForm.url}
+                        onChange={(e) => setBackgroundForm(prev => ({ ...prev, url: e.target.value }))}
+                        placeholder={backgroundForm.type === 'image' 
+                          ? "https://exemplo.com/imagem.jpg" 
+                          : "https://exemplo.com/video.mp4"
+                        }
+                      />
+                      <p className="text-xs text-muted-foreground mt-2">
+                        {backgroundForm.type === 'image' 
+                          ? 'Cole o URL de uma imagem (JPG, PNG, WebP)' 
+                          : 'Cole o URL de um vídeo (MP4). O vídeo será reproduzido em loop sem som.'
+                        }
+                      </p>
+                    </div>
+
+                    <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
+                      <h2 className="font-semibold text-foreground mb-4">Opacidade do Fundo</h2>
+                      <div className="space-y-4">
+                        <Slider
+                          value={[backgroundForm.opacity * 100]}
+                          onValueChange={(value) => setBackgroundForm(prev => ({ ...prev, opacity: value[0] / 100 }))}
+                          min={10}
+                          max={90}
+                          step={5}
+                          className="w-full"
+                        />
+                        <div className="flex justify-between text-sm text-muted-foreground">
+                          <span>Mais transparente</span>
+                          <span className="font-medium text-foreground">{Math.round(backgroundForm.opacity * 100)}%</span>
+                          <span>Mais visível</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {backgroundForm.url && (
+                      <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
+                        <h2 className="font-semibold text-foreground mb-4">Pré-visualização</h2>
+                        <div className="relative aspect-video rounded-lg overflow-hidden bg-muted">
+                          {backgroundForm.type === 'image' ? (
+                            <img 
+                              src={backgroundForm.url} 
+                              alt="Preview" 
+                              className="w-full h-full object-cover"
+                              style={{ opacity: backgroundForm.opacity }}
+                            />
+                          ) : (
+                            <video
+                              src={backgroundForm.url}
+                              autoPlay
+                              loop
+                              muted
+                              playsInline
+                              className="w-full h-full object-cover"
+                              style={{ opacity: backgroundForm.opacity }}
+                            />
+                          )}
+                          <div 
+                            className="absolute inset-0 bg-background pointer-events-none"
+                            style={{ opacity: 1 - backgroundForm.opacity }}
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <span className="bg-card/80 backdrop-blur px-4 py-2 rounded-lg text-sm font-medium">
+                              Conteúdo do site aparece aqui
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                <Button 
+                  className="w-fit" 
+                  onClick={async () => {
+                    const result = await updateBackground(backgroundForm);
+                    if (result.success) {
+                      toast({ title: 'Fundo atualizado com sucesso!' });
+                    } else {
+                      toast({ title: 'Erro ao atualizar fundo', variant: 'destructive' });
+                    }
+                  }}
+                >
+                  Guardar Fundo
+                </Button>
               </div>
             </div>
           )}

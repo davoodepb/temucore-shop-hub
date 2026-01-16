@@ -5,6 +5,7 @@ import { ProductCard } from '@/components/products/ProductCard';
 import { FlashDeals } from '@/components/products/FlashDeals';
 import { ProductsCarousel } from '@/components/products/ProductsCarousel';
 import { CookieConsent } from '@/components/common/CookieConsent';
+import { SiteBackground } from '@/components/layout/SiteBackground';
 import { useProducts } from '@/hooks/useProducts';
 import { Megaphone, X, Mail, Phone, Newspaper, Info } from 'lucide-react';
 
@@ -96,10 +97,11 @@ const Index: React.FC = () => {
         <meta name="description" content="Descubra peças únicas feitas à mão. Moda artesanal portuguesa com qualidade e estilo." />
       </Helmet>
 
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background relative">
+        <SiteBackground />
         <Header onSearch={setSearchQuery} />
 
-        <main className="container py-6">
+        <main className="container py-6 relative z-10">
           {/* Announcements */}
           {visibleAnnouncements.map(announcement => (
             <div key={announcement.id} className="mb-4 bg-gradient-to-r from-primary/10 to-amber-500/10 border border-primary/20 rounded-xl p-4 flex items-start gap-3 animate-fade-in">
